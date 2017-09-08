@@ -6,18 +6,18 @@ import org.apache.lucene.search.Query;
 
 public class DefaultQueryBuilder implements QueryBuilder {
 
-  private QueryParser parser = null;
-  
-  @Override
-  public void initialize(String defaultField, Analyzer analyzer)
-      throws Exception {
-    parser = new QueryParser(defaultField, analyzer);
-    
-  }
+    private QueryParser parser = null;
 
-  @Override
-  public Query build(String rawQuery) throws Exception {
-    return parser.parse(rawQuery);
-  }
+    @Override
+    public void initialize(String defaultField, Analyzer analyzer)
+            throws Exception {
+        parser = new QueryParser(defaultField, analyzer);
+
+    }
+
+    @Override
+    public Query build(String rawQuery) throws Exception {
+        return parser.parse(rawQuery);
+    }
 
 }

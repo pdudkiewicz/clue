@@ -1,28 +1,28 @@
 package com.senseidb.clue.commands;
 
-import java.io.PrintStream;
-
 import com.senseidb.clue.ClueContext;
+
+import java.io.PrintStream;
 
 public class DirectoryCommand extends ClueCommand {
 
-  public DirectoryCommand(ClueContext ctx) {
-    super(ctx);
-  }
+    public DirectoryCommand(ClueContext ctx) {
+        super(ctx);
+    }
 
-  @Override
-  public String getName() {
-    return "directory";
-  }
+    @Override
+    public String getName() {
+        return "directory";
+    }
 
-  @Override
-  public String help() {
-    return "prints directory information";
-  }
+    @Override
+    public String help() {
+        return "prints directory information";
+    }
 
-  @Override
-  public void execute(String[] args, PrintStream out) throws Exception {
-    out.println(getContext().getDirectory());
-  }
+    @Override
+    public void execute(String[] args, PrintStream out) throws Exception {
+        out.println(getContext().getDirectory());
+    }
 
 }
