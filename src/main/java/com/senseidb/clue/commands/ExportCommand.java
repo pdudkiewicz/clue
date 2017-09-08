@@ -7,7 +7,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.PrintStream;
-import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 
 public class ExportCommand extends ClueCommand {
 
@@ -46,23 +46,17 @@ public class ExportCommand extends ClueCommand {
             System.out.println("exporting index to binary");
         }
 
-        FSDirectory fsdir = FSDirectory.open(FileSystems.getDefault().getPath(args[0]));
+        FSDirectory fsExportDirectory = FSDirectory.open(Paths.get(args[0]));
 
-        IndexWriter writer = null;
+        IndexWriterConfig indexWriterConfig = new IndexWriterConfig();
+        if (isExportToText) {
+            indexWriterConfig.setCodec(new SimpleTextCodec());
+        }
 
-        try {
-            IndexWriterConfig conf = new IndexWriterConfig(null);
-            if (isExportToText) {
-                conf.setCodec(new SimpleTextCodec());
-            }
-            writer = new IndexWriter(fsdir, conf);
+        try (IndexWriter writer = new IndexWriter(fsExportDirectory, indexWriterConfig)) {
             writer.addIndexes(ctx.getDirectory());
             writer.forceMerge(1);
-        } finally {
-            if (writer != null) {
-                writer.commit();
-                writer.close();
-            }
         }
     }
+
 }
