@@ -1,6 +1,5 @@
 package com.senseidb.clue.test;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexOptions;
@@ -11,23 +10,22 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.nio.file.FileSystems;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class BuildSampleIndex {
 
-    static final String CONTENTS_FIELD = "contents";
-
-    static void addMetaString(Document doc, String field, String value) {
+    private static void addMetaString(Document doc, String field, String value) {
         if (value != null) {
             doc.add(new SortedDocValuesField(field, new BytesRef(value)));
             doc.add(new StringField(field + "_indexed", value, Store.YES));
         }
     }
 
-    static Document buildDoc(JSONObject json) throws Exception {
+    private static Document buildDoc(JSONObject json) {
         Document doc = new Document();
 
         doc.add(new NumericDocValuesField("id", json.getLong("id")));
@@ -61,7 +59,13 @@ public class BuildSampleIndex {
             ft.setStoreTermVectorPositions(true);
             ft.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
 
-            Field tagPayload = new Field("tags_payload", new PayloadTokenizer(tagsString), ft);
+            PayloadTokenizer tokenStream;
+            try {
+                tokenStream = new PayloadTokenizer(tagsString);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            Field tagPayload = new Field("tags_payload", tokenStream, ft);
             doc.add(tagPayload);
         }
 
@@ -70,38 +74,30 @@ public class BuildSampleIndex {
         return doc;
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
             System.out.println("usage: source_file index_dir");
         }
-        File f = new File(args[0]);
-        BufferedReader reader = new BufferedReader(new FileReader(f));
 
-        IndexWriterConfig idxWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
-        Directory dir = FSDirectory.open(FileSystems.getDefault().getPath(args[1]));
-        IndexWriter writer = new IndexWriter(dir, idxWriterConfig);
-        int count = 0;
-        while (true) {
-            String line = reader.readLine();
-            if (line == null) break;
+        IndexWriterConfig idxWriterConfig = new IndexWriterConfig();
+        Directory dir = FSDirectory.open(Paths.get(args[1]));
+        try (IndexWriter writer = new IndexWriter(dir, idxWriterConfig)) {
+            List<String> documentLines = Files.readAllLines(Paths.get(args[0]));
+            documentLines
+                    .stream()
+                    .map(JSONObject::new)
+                    .map(BuildSampleIndex::buildDoc)
+                    .forEach(document -> {
+                        try {
+                            writer.addDocument(document);
+                        } catch (IOException e) {
+                            throw new UncheckedIOException(e);
+                        }
+                    });
 
-            JSONObject json = new JSONObject(line);
-            Document doc = buildDoc(json);
-            writer.addDocument(doc);
-            count++;
-            if (count % 100 == 0) {
-                System.out.print(".");
-            }
+            System.out.println(documentLines.size() + " docs indexed");
+
         }
-
-        System.out.println(count + " docs indexed");
-
-        reader.close();
-        writer.commit();
-        writer.close();
     }
 
 }
