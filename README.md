@@ -1,6 +1,8 @@
 CLue - Command Line tool for Apache Lucene
 ==========================================
 
+[![Build Status](https://travis-ci.org/pdudkiewicz/clue.svg?branch=master)](https://travis-ci.org/pdudkiewicz/clue)
+
 ### Overview:
 
 When working with Lucene, it is often useful to inspect an index.
