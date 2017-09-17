@@ -9,7 +9,7 @@ import org.apache.lucene.store.NoLockFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,7 +28,7 @@ public class DefaultDirectoryBuilder implements DirectoryBuilder {
 
         if (SUPPORTED_SCHEMES.contains(scheme)) {
             if ("file".equals(scheme)) {
-                return FSDirectory.open(FileSystems.getDefault().getPath(idxUri.getPath()));
+                return FSDirectory.open(Paths.get(idxUri.getPath()));
             } else if ("hdfs".equals(scheme)) {
                 String hadoopConfDir = null;
                 String filePath = idxUri.getPath();
