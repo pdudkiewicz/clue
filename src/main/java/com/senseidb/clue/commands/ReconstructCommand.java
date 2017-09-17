@@ -39,11 +39,8 @@ public class ReconstructCommand extends ClueCommand {
                 int freq = postings.freq();
                 for (int i = 0; i < freq; ++i) {
                     int pos = postings.nextPosition();
-                    List<String> textList = docTextMap.get(pos);
-                    if (textList == null) {
-                        textList = new ArrayList<String>();
-                        docTextMap.put(pos, textList);
-                    }
+                    List<String> textList =
+                            docTextMap.computeIfAbsent(pos, k -> new ArrayList<>());
                     textList.add(text.utf8ToString());
                 }
             }
@@ -53,7 +50,7 @@ public class ReconstructCommand extends ClueCommand {
             Integer pos = entry.getKey();
             List<String> terms = entry.getValue();
             for (String term : terms) {
-                buf.append(term + "(" + pos + ") ");
+                buf.append(term).append("(").append(pos).append(") ");
             }
         }
         return buf.toString();
@@ -72,7 +69,7 @@ public class ReconstructCommand extends ClueCommand {
         }
         StringBuilder buf = new StringBuilder();
         for (String s : textList) {
-            buf.append(s + " ");
+            buf.append(s).append(" ");
         }
         return buf.toString();
     }
@@ -122,7 +119,6 @@ public class ReconstructCommand extends ClueCommand {
 
         if (!found) {
             out.println(doc + " not found");
-            return;
         }
 
 

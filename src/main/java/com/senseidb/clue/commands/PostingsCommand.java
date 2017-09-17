@@ -27,7 +27,7 @@ public class PostingsCommand extends ClueCommand {
 
     @Override
     public void execute(String[] args, PrintStream out) throws Exception {
-        String field = null;
+        String field;
         String termVal = null;
         try {
             field = args[0];
@@ -64,55 +64,53 @@ public class PostingsCommand extends ClueCommand {
             }
             boolean hasPositions = terms.hasPositions();
 
-            if (terms != null && termVal != null) {
-                TermsEnum te = terms.iterator();
-                int count = 0;
-                if (te.seekExact(new BytesRef(termVal))) {
+            TermsEnum te = terms.iterator();
+            int count = 0;
+            if (te.seekExact(new BytesRef(termVal))) {
 
-                    if (hasPositions) {
-                        postings = te.postings(postings, PostingsEnum.FREQS |
-                                PostingsEnum.PAYLOADS |
-                                PostingsEnum.POSITIONS |
-                                PostingsEnum.OFFSETS);
+                if (hasPositions) {
+                    postings = te.postings(postings, PostingsEnum.FREQS |
+                            PostingsEnum.PAYLOADS |
+                            PostingsEnum.POSITIONS |
+                            PostingsEnum.OFFSETS);
 
-                        int docid;
-                        while ((docid = postings.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-                            count++;
-                            out.print("docid: " + (docid + docBase) + ", freq: " + postings.freq() + ", ");
-                            for (int i = 0; i < postings.freq(); ++i) {
-                                out.print("pos " + i + ": " + postings.nextPosition());
-                                out.print(", start offset: " + postings.startOffset());
-                                out.print(", end offset: " + postings.endOffset());
-                                BytesRef payload = postings.getPayload();
-                                if (payload != null) {
-                                    out.print(", payload: " + payloadPrinter.print(payload));
-                                }
-                                out.print(";");
+                    int docid;
+                    while ((docid = postings.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+                        count++;
+                        out.print("docid: " + (docid + docBase) + ", freq: " + postings.freq() + ", ");
+                        for (int i = 0; i < postings.freq(); ++i) {
+                            out.print("pos " + i + ": " + postings.nextPosition());
+                            out.print(", start offset: " + postings.startOffset());
+                            out.print(", end offset: " + postings.endOffset());
+                            BytesRef payload = postings.getPayload();
+                            if (payload != null) {
+                                out.print(", payload: " + payloadPrinter.print(payload));
                             }
-                            out.println();
-                            if (ctx.isInteractiveMode() && count % numPerPage == 0) {
-                                out.println("Ctrl-D to break");
-                                int ch = System.in.read();
-                                if (ch == -1) {
-                                    out.flush();
-                                    return;
-                                }
+                            out.print(";");
+                        }
+                        out.println();
+                        if (ctx.isInteractiveMode() && count % numPerPage == 0) {
+                            out.println("Ctrl-D to break");
+                            int ch = System.in.read();
+                            if (ch == -1) {
+                                out.flush();
+                                return;
                             }
                         }
-                    } else {
-                        postings = te.postings(postings, PostingsEnum.FREQS);
+                    }
+                } else {
+                    postings = te.postings(postings, PostingsEnum.FREQS);
 
-                        int docid;
-                        while ((docid = postings.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-                            count++;
-                            out.println("docid: " + (docid + docBase) + ", freq: " + postings.freq());
-                            if (ctx.isInteractiveMode() && count % numPerPage == 0) {
-                                out.println("Ctrl-D to break");
-                                int ch = System.in.read();
-                                if (ch == -1) {
-                                    out.flush();
-                                    return;
-                                }
+                    int docid;
+                    while ((docid = postings.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+                        count++;
+                        out.println("docid: " + (docid + docBase) + ", freq: " + postings.freq());
+                        if (ctx.isInteractiveMode() && count % numPerPage == 0) {
+                            out.println("Ctrl-D to break");
+                            int ch = System.in.read();
+                            if (ch == -1) {
+                                out.flush();
+                                return;
                             }
                         }
                     }

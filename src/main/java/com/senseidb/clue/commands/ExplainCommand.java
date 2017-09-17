@@ -38,7 +38,7 @@ public class ExplainCommand extends ClueCommand {
         String docString = args[args.length - 1];
         String[] docList = docString.split(",");
 
-        List<Integer> docidList = new ArrayList<Integer>();
+        List<Integer> docidList = new ArrayList<>();
         try {
             for (String s : docList) {
                 docidList.add(Integer.parseInt(s));
@@ -55,7 +55,7 @@ public class ExplainCommand extends ClueCommand {
 
         IndexReader r = ctx.getIndexReader();
         IndexSearcher searcher = new IndexSearcher(r);
-        Query q = null;
+        Query q;
 
         String qstring = buf.toString();
 

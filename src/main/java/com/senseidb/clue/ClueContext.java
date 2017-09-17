@@ -45,7 +45,7 @@ public class ClueContext {
         this.payloadBytesRefDisplay = config.getPayloadBytesRefDisplay();
         this.writer = null;
         this.interactiveMode = interactiveMode;
-        this.cmdMap = new TreeMap<String, ClueCommand>();
+        this.cmdMap = new TreeMap<>();
         // default to readonly
         this.readOnlyMode = true;
 

@@ -84,7 +84,6 @@ public class NormsCommand extends ClueCommand {
                 }
             }
             out.flush();
-            return;
         } else {
             for (int i = 0; i < leaves.size(); ++i) {
                 LeafReaderContext ctx = leaves.get(i);
@@ -112,7 +111,6 @@ public class NormsCommand extends ClueCommand {
                 }
                 out.flush();
             }
-            return;
         }
     }
 

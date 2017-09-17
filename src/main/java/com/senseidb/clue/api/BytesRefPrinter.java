@@ -3,22 +3,8 @@ package com.senseidb.clue.api;
 import org.apache.lucene.util.BytesRef;
 
 public interface BytesRefPrinter {
-    BytesRefPrinter UTFPrinter = new BytesRefPrinter() {
-
-        @Override
-        public String print(BytesRef bytesRef) {
-            return bytesRef.utf8ToString();
-        }
-
-    };
-    BytesRefPrinter RawBytesPrinter = new BytesRefPrinter() {
-
-        @Override
-        public String print(BytesRef bytesRef) {
-            return bytesRef.toString();
-        }
-
-    };
+    BytesRefPrinter UTFPrinter = BytesRef::utf8ToString;
+    BytesRefPrinter RawBytesPrinter = BytesRef::toString;
 
     String print(BytesRef bytesRef);
 }

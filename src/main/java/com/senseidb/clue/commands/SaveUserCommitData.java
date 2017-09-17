@@ -33,7 +33,7 @@ public class SaveUserCommitData extends ClueCommand {
             }
             Map<String, String> commitData = writer.getCommitData();
             if (commitData == null) {
-                commitData = new HashMap<String, String>();
+                commitData = new HashMap<>();
             }
             commitData.put(args[0], args[1]);
             writer.setCommitData(commitData);

@@ -9,7 +9,7 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class StoredFieldCommand extends ClueCommand {
 
             if (docID >= 0) {
 
-                Document storedData = atomicReader.document(docID, new HashSet<String>(Arrays.asList(field)));
+                Document storedData = atomicReader.document(docID, new HashSet<>(Collections.singletonList(field)));
 
                 if (storedData == null) continue;
 
@@ -102,7 +102,6 @@ public class StoredFieldCommand extends ClueCommand {
 
         if (!found) {
             out.println(doc + " not found");
-            return;
         }
     }
 

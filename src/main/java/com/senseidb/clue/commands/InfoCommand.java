@@ -159,7 +159,7 @@ public class InfoCommand extends ClueCommand {
                 FieldInfo finfo = fields.fieldInfo(i);
                 Terms te = flds.terms(finfo.name);
                 out.println("=================================== Field " + finfo.name + " ===================================");
-                toString(new Object[]{finfo, Arrays.asList(te)}, out);
+                toString(new Object[]{finfo, Collections.singletonList(te)}, out);
             }
         }
 

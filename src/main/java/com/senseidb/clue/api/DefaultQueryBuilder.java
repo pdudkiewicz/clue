@@ -6,13 +6,12 @@ import org.apache.lucene.search.Query;
 
 public class DefaultQueryBuilder implements QueryBuilder {
 
-    private QueryParser parser = null;
+    private QueryParser parser;
 
     @Override
     public void initialize(String defaultField, Analyzer analyzer)
             throws Exception {
         parser = new QueryParser(defaultField, analyzer);
-
     }
 
     @Override

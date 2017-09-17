@@ -6,9 +6,8 @@ import org.apache.lucene.store.Directory;
 
 public class DefaultIndexReaderFactory implements IndexReaderFactory {
 
-    private Directory idxDir = null;
-    private IndexReader reader = null;
-
+    private Directory idxDir;
+    private IndexReader reader;
 
     public DefaultIndexReaderFactory() {
     }

@@ -156,7 +156,7 @@ public class DocValCommand extends ClueCommand {
 
         String field = args[0];
 
-        List<Integer> docidList = new ArrayList<Integer>();
+        List<Integer> docidList = new ArrayList<>();
 
         int numPerPage = 20;
 
@@ -214,7 +214,6 @@ public class DocValCommand extends ClueCommand {
                 }
                 out.flush();
             }
-            return;
         }
     }
 

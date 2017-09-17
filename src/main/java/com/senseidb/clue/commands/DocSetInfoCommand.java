@@ -32,7 +32,7 @@ public class DocSetInfoCommand extends ClueCommand {
 
     @Override
     public void execute(String[] args, PrintStream out) throws Exception {
-        String field = null;
+        String field;
         String termVal = null;
         int bucketSize = DEFAULT_BUCKET_SIZE;
 
@@ -44,7 +44,7 @@ public class DocSetInfoCommand extends ClueCommand {
 
         try {
             bucketSize = Integer.parseInt(args[1]);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         if (field != null) {
@@ -72,57 +72,55 @@ public class DocSetInfoCommand extends ClueCommand {
             if (terms == null) {
                 continue;
             }
-            if (terms != null && termVal != null) {
-                TermsEnum te = terms.iterator();
+            TermsEnum te = terms.iterator();
 
-                if (te.seekExact(new BytesRef(termVal))) {
-                    postingsEnum = te.postings(postingsEnum, PostingsEnum.FREQS);
+            if (te.seekExact(new BytesRef(termVal))) {
+                postingsEnum = te.postings(postingsEnum, PostingsEnum.FREQS);
 
-                    int docFreq = te.docFreq();
+                int docFreq = te.docFreq();
 
-                    int minDocId = -1, maxDocId = -1;
-                    int doc, count = 0;
+                int minDocId = -1, maxDocId = -1;
+                int doc, count = 0;
 
-                    int[] percentDocs = new int[PERCENTILES.length];
+                int[] percentDocs = new int[PERCENTILES.length];
 
-                    int percentileIdx = 0;
+                int percentileIdx = 0;
 
-                    while ((doc = postingsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-                        maxDocId = doc;
-                        if (minDocId == -1) {
-                            minDocId = doc;
-                        }
-                        count++;
+                while ((doc = postingsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+                    maxDocId = doc;
+                    if (minDocId == -1) {
+                        minDocId = doc;
+                    }
+                    count++;
 
-                        double perDocs = (double) count / (double) docFreq * 100.0;
-                        while (percentileIdx < percentDocs.length) {
-                            if (perDocs > PERCENTILES[percentileIdx]) {
-                                percentDocs[percentileIdx] = doc;
-                                percentileIdx++;
-                            } else {
-                                break;
-                            }
+                    double perDocs = (double) count / (double) docFreq * 100.0;
+                    while (percentileIdx < percentDocs.length) {
+                        if (perDocs > PERCENTILES[percentileIdx]) {
+                            percentDocs[percentileIdx] = doc;
+                            percentileIdx++;
+                        } else {
+                            break;
                         }
                     }
-
-                    // calculate histogram
-                    int[] buckets = null;
-                    if (maxDocId > 0) {
-                        buckets = new int[maxDocId / bucketSize + 1];
-
-                        postingsEnum = te.postings(postingsEnum, PostingsEnum.FREQS);
-                        while ((doc = postingsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
-                            int bucketIdx = doc / bucketSize;
-                            buckets[bucketIdx]++;
-                        }
-                    }
-
-                    double density = (double) docFreq / (double) (maxDocId - minDocId);
-                    out.println(String.format("min: %d, max: %d, count: %d, density: %.2f", minDocId, maxDocId, docFreq, density));
-                    out.println("percentiles: " + Arrays.toString(PERCENTILES) + " => " + Arrays.toString(percentDocs));
-                    out.println("histogram: (bucketsize=" + bucketSize + ")");
-                    out.println(Arrays.toString(buckets));
                 }
+
+                // calculate histogram
+                int[] buckets = null;
+                if (maxDocId > 0) {
+                    buckets = new int[maxDocId / bucketSize + 1];
+
+                    postingsEnum = te.postings(postingsEnum, PostingsEnum.FREQS);
+                    while ((doc = postingsEnum.nextDoc()) != DocIdSetIterator.NO_MORE_DOCS) {
+                        int bucketIdx = doc / bucketSize;
+                        buckets[bucketIdx]++;
+                    }
+                }
+
+                double density = (double) docFreq / (double) (maxDocId - minDocId);
+                out.println(String.format("min: %d, max: %d, count: %d, density: %.2f", minDocId, maxDocId, docFreq, density));
+                out.println("percentiles: " + Arrays.toString(PERCENTILES) + " => " + Arrays.toString(percentDocs));
+                out.println("histogram: (bucketsize=" + bucketSize + ")");
+                out.println(Arrays.toString(buckets));
             }
         }
     }
